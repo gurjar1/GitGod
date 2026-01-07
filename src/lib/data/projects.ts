@@ -28,10 +28,10 @@ export const categories: Category[] = [
     // TIER 1: LEGENDARY STATUS
     // ============================================
     {
-        id: 'the-immortals',
-        name: 'The Immortals',
-        description: 'Projects that have survived 10+ years and are still actively maintained. The foundations of modern computing.',
-        icon: '⚔️',
+        id: 'foundations',
+        name: 'Foundations & Core Tools',
+        description: 'Projects that have survived 10+ years and power modern computing - languages, kernels, and essential infrastructure.',
+        icon: '🏛️',
         tier: 'legendary',
         metric: 'Age + Consistent Commits',
         projects: [
@@ -158,10 +158,10 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-omnipotent',
-        name: 'The Omnipotent',
-        description: 'Infrastructure tools that control other tools. The orchestrators of modern DevOps.',
-        icon: '🌐',
+        id: 'devops-infra',
+        name: 'DevOps & Infrastructure',
+        description: 'Container orchestration, infrastructure as code, monitoring, and deployment tools that power modern operations.',
+        icon: '🚀',
         tier: 'legendary',
         metric: 'Dependencies Used By',
         projects: [
@@ -288,10 +288,10 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-dangerous',
-        name: 'The Dangerous',
-        description: 'Powerful security and penetration testing tools. Handle with care and ethical responsibility.',
-        icon: '☠️',
+        id: 'security-tools',
+        name: 'Security & Pentesting',
+        description: 'Penetration testing, vulnerability scanning, and cybersecurity tools. Use responsibly and ethically.',
+        icon: '🔐',
         tier: 'legendary',
         metric: 'Fork Ratio (High = Useful)',
         projects: [
@@ -418,10 +418,10 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-cults',
-        name: 'The Cults',
-        description: 'Projects with the most passionate, fanatical communities. Join if you dare.',
-        icon: '🔥',
+        id: 'community-favorites',
+        name: 'Community Favorites',
+        description: 'Projects with passionate communities - beloved editors, languages, and tools with devoted followings.',
+        icon: '❤️',
         tier: 'legendary',
         metric: 'Community Engagement',
         projects: [
@@ -552,9 +552,9 @@ export const categories: Category[] = [
     // TIER 2: DOMAIN DOMINANCE
     // ============================================
     {
-        id: 'the-oracles',
-        name: 'The Oracles',
-        description: 'AI/ML powerhouses that are shaping the future of artificial intelligence.',
+        id: 'ai-ml',
+        name: 'AI & Machine Learning',
+        description: 'Machine learning frameworks, neural networks, and AI tools powering the future of technology.',
         icon: '🧠',
         tier: 'domain',
         projects: [
@@ -621,9 +621,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-architects',
-        name: 'The Architects',
-        description: 'Frameworks that changed how we build software forever.',
+        id: 'frameworks',
+        name: 'Web Frameworks',
+        description: 'Frameworks that changed how we build software - React, Vue, Django, Rails, and more.',
         icon: '🏗️',
         tier: 'domain',
         projects: [
@@ -690,9 +690,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-guardians',
-        name: 'The Guardians',
-        description: 'Privacy and security tools protecting your digital life.',
+        id: 'privacy-security',
+        name: 'Privacy & Protection',
+        description: 'Privacy-focused browsers, ad blockers, VPNs, and tools protecting your digital life.',
         icon: '🛡️',
         tier: 'domain',
         projects: [
@@ -759,10 +759,10 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-weavers',
-        name: 'The Weavers',
-        description: 'Modern web development essentials for building the next generation of websites.',
-        icon: '🕸️',
+        id: 'frontend-ui',
+        name: 'Frontend & UI',
+        description: 'Modern web development frameworks and tools for building beautiful, responsive websites.',
+        icon: '🎨',
         tier: 'domain',
         projects: [
             {
@@ -832,10 +832,10 @@ export const categories: Category[] = [
     // TIER 3: RISING & SPECIALIZED
     // ============================================
     {
-        id: 'the-forges',
-        name: 'The Forges',
-        description: 'Developer productivity tools that supercharge your workflow.',
-        icon: '🔨',
+        id: 'dev-tools',
+        name: 'Developer Tools',
+        description: 'Productivity tools that supercharge your development workflow - terminals, editors, utilities.',
+        icon: '🔧',
         tier: 'rising',
         projects: [
             {
@@ -901,9 +901,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-teachers',
-        name: 'The Teachers',
-        description: 'Educational repositories and resources for learning programming.',
+        id: 'learning-resources',
+        name: 'Learning Resources',
+        description: 'Educational repositories, tutorials, interview prep, and courses for developers at all levels.',
         icon: '📚',
         tier: 'rising',
         projects: [
@@ -970,10 +970,10 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-rising-gods',
-        name: 'The Rising Gods',
-        description: 'Trending high-quality newcomers that are taking the developer world by storm.',
-        icon: '🚀',
+        id: 'trending-stars',
+        name: 'Fast Rising Stars',
+        description: 'High-quality newcomers rapidly gaining popularity - the next generation of must-know projects.',
+        icon: '⭐',
         tier: 'rising',
         projects: [
             {
@@ -1039,9 +1039,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-automators',
-        name: 'The Automators',
-        description: 'DevOps and CI/CD tools that automate your infrastructure and deployments.',
+        id: 'automation-cicd',
+        name: 'Automation & CI/CD',
+        description: 'Build systems, continuous integration, and deployment automation for modern development.',
         icon: '⚙️',
         tier: 'rising',
         projects: [
@@ -1108,9 +1108,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-beginners-path',
-        name: "The Beginner's Path",
-        description: 'Beginner-friendly projects with good first issues and learning opportunities.',
+        id: 'beginner-friendly',
+        name: 'Beginner Friendly',
+        description: 'Projects with good first issues and welcoming communities - perfect for new contributors.',
         icon: '🌱',
         tier: 'rising',
         projects: [
@@ -1177,9 +1177,9 @@ export const categories: Category[] = [
         ]
     },
     {
-        id: 'the-awesome',
-        name: 'The Awesome',
-        description: 'The legendary "awesome" lists - curated collections of the best resources across every domain. The original curation movement.',
+        id: 'awesome-lists',
+        name: 'Awesome Lists',
+        description: 'Curated "awesome" lists - comprehensive collections of the best resources in every domain.',
         icon: '🌟',
         tier: 'legendary',
         metric: 'Curation Quality + Stars',

@@ -4,26 +4,30 @@
 
     // All 15 categories organized by tier
     const legendaryCategories = [
-        { name: "The Immortals", slug: "the-immortals", icon: "⚔️" },
-        { name: "The Omnipotent", slug: "the-omnipotent", icon: "🌐" },
-        { name: "The Dangerous", slug: "the-dangerous", icon: "☠️" },
-        { name: "The Cults", slug: "the-cults", icon: "🔥" },
-        { name: "The Awesome", slug: "the-awesome", icon: "🌟" },
+        { name: "Foundations & Core", slug: "foundations", icon: "🏛️" },
+        { name: "DevOps & Infra", slug: "devops-infra", icon: "🚀" },
+        { name: "Security & Pentesting", slug: "security-tools", icon: "🔐" },
+        {
+            name: "Community Favorites",
+            slug: "community-favorites",
+            icon: "❤️",
+        },
+        { name: "Awesome Lists", slug: "awesome-lists", icon: "🌟" },
     ];
 
     const domainCategories = [
-        { name: "The Oracles", slug: "the-oracles", icon: "🧠" },
-        { name: "The Architects", slug: "the-architects", icon: "🏗️" },
-        { name: "The Guardians", slug: "the-guardians", icon: "🛡️" },
-        { name: "The Weavers", slug: "the-weavers", icon: "🕸️" },
+        { name: "AI & Machine Learning", slug: "ai-ml", icon: "🧠" },
+        { name: "Web Frameworks", slug: "frameworks", icon: "🏗️" },
+        { name: "Privacy & Protection", slug: "privacy-security", icon: "🛡️" },
+        { name: "Frontend & UI", slug: "frontend-ui", icon: "🎨" },
     ];
 
     const risingCategories = [
-        { name: "The Forges", slug: "the-forges", icon: "🔨" },
-        { name: "The Teachers", slug: "the-teachers", icon: "📚" },
-        { name: "The Rising Gods", slug: "the-rising-gods", icon: "🚀" },
-        { name: "The Automators", slug: "the-automators", icon: "⚙️" },
-        { name: "The Beginner's Path", slug: "the-beginners-path", icon: "🌱" },
+        { name: "Developer Tools", slug: "dev-tools", icon: "🔧" },
+        { name: "Learning Resources", slug: "learning-resources", icon: "📚" },
+        { name: "Fast Rising Stars", slug: "trending-stars", icon: "⭐" },
+        { name: "Automation & CI/CD", slug: "automation-cicd", icon: "⚙️" },
+        { name: "Beginner Friendly", slug: "beginner-friendly", icon: "🌱" },
     ];
 
     let mobileMenuOpen = $state(false);

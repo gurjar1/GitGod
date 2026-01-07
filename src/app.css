@@ -262,17 +262,17 @@ h4 {
 /* Grid Layouts */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
-/* Medium screens */
+/* Medium screens - max 3 columns */
 @media (min-width: 1024px) {
   .projects-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -283,7 +283,7 @@ h4 {
   }
 }
 
-/* Larger screens */
+/* Larger screens - max 4 columns */
 @media (min-width: 1400px) {
   .projects-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -291,16 +291,6 @@ h4 {
 
   .categories-grid {
     grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 1800px) {
-  .projects-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .categories-grid {
-    grid-template-columns: repeat(5, 1fr);
   }
 }
 
