@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from "$app/state";
+    import SearchBar from "./SearchBar.svelte";
 
     // All 15 categories organized by tier
     const legendaryCategories = [
@@ -156,8 +157,9 @@
                 </a>
             </div>
 
-            <!-- GitHub Link -->
+            <!-- Search and GitHub Link -->
             <div class="hidden md:flex items-center gap-4">
+                <SearchBar />
                 <a
                     href="https://github.com/gurjar1/GitGod"
                     target="_blank"
