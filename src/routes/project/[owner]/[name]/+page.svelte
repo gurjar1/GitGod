@@ -8,8 +8,8 @@
     import ProjectCard from "$lib/components/ProjectCard.svelte";
     import { onMount } from "svelte";
 
-    // Get static project data
-    const project = $derived(
+    // Get static project data (may be null for trending repos)
+    const curatedProject = $derived(
         getProjectByFullName(page.params.owner, page.params.name),
     );
 
@@ -20,6 +20,25 @@
     let readme = $state<string | null>(null);
     let contributors = $state<any[]>([]);
     let languages = $state<Record<string, number>>({});
+
+    // Combined project info (from curated or API)
+    const projectInfo = $derived(() => {
+        if (curatedProject) return curatedProject;
+        if (githubData) {
+            return {
+                name: githubData.name,
+                owner: githubData.owner?.login || page.params.owner,
+                description: githubData.description || "No description",
+                stars: githubData.stargazers_count || 0,
+                forks: githubData.forks_count || 0,
+                language: githubData.language || "Unknown",
+                url:
+                    githubData.html_url ||
+                    `https://github.com/${page.params.owner}/${page.params.name}`,
+            } as Project;
+        }
+        return null;
+    });
 
     // Find which category this project belongs to
     const category = $derived(() => {
@@ -98,7 +117,6 @@
     // Fetch GitHub data on mount
     onMount(async () => {
         try {
-            // Fetch repo data
             const response = await fetch(
                 `https://api.github.com/repos/${page.params.owner}/${page.params.name}`,
                 {
@@ -114,7 +132,7 @@
 
             githubData = await response.json();
 
-            // Fetch README (optional, may fail for some repos)
+            // Fetch README
             try {
                 const readmeResponse = await fetch(
                     `https://api.github.com/repos/${page.params.owner}/${page.params.name}/readme`,
@@ -127,20 +145,15 @@
 
                 if (readmeResponse.ok) {
                     readme = await readmeResponse.text();
-                    // Truncate README to first 2000 characters for display
-                    if (readme && readme.length > 2000) {
-                        readme =
-                            readme.substring(0, 2000) + "\n\n... (truncated)";
-                    }
                 }
             } catch (e) {
-                // README fetch failed, that's okay
+                // README fetch failed
             }
 
             // Fetch top contributors
             try {
                 const contribResponse = await fetch(
-                    `https://api.github.com/repos/${page.params.owner}/${page.params.name}/contributors?per_page=8`,
+                    `https://api.github.com/repos/${page.params.owner}/${page.params.name}/contributors?per_page=10`,
                     {
                         headers: {
                             Accept: "application/vnd.github.v3+json",
@@ -223,22 +236,41 @@
 </script>
 
 <svelte:head>
-    {#if project}
-        <title>{project.owner}/{project.name} - GitGod</title>
+    {#if projectInfo()}
+        <title>{projectInfo()?.owner}/{projectInfo()?.name} - GitGod</title>
         <meta
             name="description"
-            content="{project.description}. Explore this open source project on GitGod."
+            content="{projectInfo()
+                ?.description}. Explore this open source project on GitGod."
         />
+    {:else if loading}
+        <title>Loading... - GitGod</title>
     {:else}
         <title>Project Not Found - GitGod</title>
     {/if}
 </svelte:head>
 
-{#if project}
+{#if loading}
+    <!-- Loading State -->
     <section class="py-12">
-        <div class="max-w-6xl mx-auto px-4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="animate-pulse">
+                <div class="h-8 bg-base-300 rounded w-1/3 mb-4"></div>
+                <div class="h-4 bg-base-300 rounded w-2/3 mb-8"></div>
+                <div class="grid grid-cols-4 gap-4 mb-8">
+                    <div class="h-24 bg-base-300 rounded"></div>
+                    <div class="h-24 bg-base-300 rounded"></div>
+                    <div class="h-24 bg-base-300 rounded"></div>
+                    <div class="h-24 bg-base-300 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+{:else if projectInfo()}
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto px-4">
             <!-- Breadcrumb -->
-            <nav class="mb-8 text-sm">
+            <nav class="mb-6 text-sm">
                 <ol class="flex items-center gap-2 text-base-content/60">
                     <li>
                         <a href="/" class="hover:text-primary transition-colors"
@@ -255,24 +287,33 @@
                             >
                         </li>
                         <li>/</li>
+                    {:else}
+                        <li>
+                            <a
+                                href="/trending"
+                                class="hover:text-primary transition-colors"
+                                >Trending</a
+                            >
+                        </li>
+                        <li>/</li>
                     {/if}
                     <li class="text-white truncate max-w-[200px]">
-                        {project.name}
+                        {projectInfo()?.name}
                     </li>
                 </ol>
             </nav>
 
-            <!-- Project Header -->
-            <div class="glass-card mb-8">
-                <div class="flex flex-col md:flex-row md:items-start gap-6">
+            <!-- Project Header with integrated stats -->
+            <div class="glass-card mb-6">
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
                     <!-- Icon/Avatar -->
                     <div
-                        class="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center text-2xl shrink-0"
+                        class="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center text-xl shrink-0"
                     >
                         {#if githubData?.owner?.avatar_url}
                             <img
                                 src={githubData.owner.avatar_url}
-                                alt={project.owner}
+                                alt={projectInfo()?.owner}
                                 class="w-full h-full rounded-lg object-cover"
                             />
                         {:else}
@@ -280,49 +321,159 @@
                         {/if}
                     </div>
 
-                    <div class="flex-1">
-                        <div class="flex flex-wrap items-center gap-3 mb-2">
-                            <h1 class="text-2xl md:text-3xl font-bold">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <h1 class="text-xl md:text-2xl font-bold">
                                 <span class="text-base-content/60"
-                                    >{project.owner}/</span
-                                ><span class="text-white">{project.name}</span>
+                                    >{projectInfo()?.owner}/</span
+                                >
+                                <span class="text-white"
+                                    >{projectInfo()?.name}</span
+                                >
                             </h1>
-                            {#if project.language}
+                            {#if projectInfo()?.language && projectInfo()?.language !== "Unknown"}
                                 <span
-                                    class="language-badge"
+                                    class="language-badge text-xs"
                                     style="--lang-color: {languageColors[
-                                        project.language
+                                        projectInfo()?.language || ''
                                     ] || '#8b949e'}"
                                 >
                                     <span
                                         class="w-2 h-2 rounded-full"
                                         style="background-color: {languageColors[
-                                            project.language
+                                            projectInfo()?.language || ''
                                         ] || '#8b949e'}"
                                     ></span>
-                                    {project.language}
+                                    {projectInfo()?.language}
                                 </span>
                             {/if}
                             {#if githubData?.archived}
-                                <span class="badge badge-warning">Archived</span
+                                <span class="badge badge-warning text-xs"
+                                    >Archived</span
                                 >
                             {/if}
                         </div>
 
-                        <p class="text-base-content/70 text-lg mb-4">
-                            {githubData?.description || project.description}
+                        <p class="text-base-content/70 mb-3">
+                            {githubData?.description ||
+                                projectInfo()?.description}
                         </p>
 
-                        <!-- Action buttons -->
-                        <div class="flex flex-wrap gap-3">
-                            <a
-                                href={project.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="btn btn-primary gap-2"
+                        <!-- Integrated stats row -->
+                        <div
+                            class="flex flex-wrap items-center gap-4 text-sm mb-3"
+                        >
+                            <span class="flex items-center gap-1">
+                                <svg
+                                    class="w-4 h-4 text-primary"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                    />
+                                </svg>
+                                <span class="text-white font-medium"
+                                    >{formatNumber(
+                                        githubData?.stargazers_count ||
+                                            projectInfo()?.stars ||
+                                            0,
+                                    )}</span
+                                >
+                                <span class="text-base-content/60">stars</span>
+                            </span>
+                            <span
+                                class="flex items-center gap-1 text-base-content/60"
                             >
                                 <svg
-                                    class="w-5 h-5"
+                                    class="w-4 h-4"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                                <span
+                                    >{formatNumber(
+                                        githubData?.forks_count ||
+                                            projectInfo()?.forks ||
+                                            0,
+                                    )} forks</span
+                                >
+                            </span>
+                            <span
+                                class="flex items-center gap-1 text-base-content/60"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                    />
+                                </svg>
+                                <span
+                                    >{formatNumber(
+                                        githubData?.subscribers_count || 0,
+                                    )} watchers</span
+                                >
+                            </span>
+                            {#if githubData?.created_at}
+                                <span
+                                    class="flex items-center gap-1 text-base-content/60"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    <span
+                                        >{calculateAge(githubData.created_at)}+
+                                        years</span
+                                    >
+                                </span>
+                            {/if}
+                            {#if githubData?.pushed_at}
+                                <span class="text-base-content/60 text-xs">
+                                    Updated {formatRelativeTime(
+                                        githubData.pushed_at,
+                                    )}
+                                </span>
+                            {/if}
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="flex flex-wrap gap-2">
+                            <a
+                                href={projectInfo()?.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-primary btn-sm gap-1"
+                            >
+                                <svg
+                                    class="w-4 h-4"
                                     fill="currentColor"
                                     viewBox="0 0 24 24"
                                 >
@@ -339,10 +490,10 @@
                                     href={githubData.homepage}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="btn btn-outline gap-2"
+                                    class="btn btn-outline btn-sm gap-1"
                                 >
                                     <svg
-                                        class="w-5 h-5"
+                                        class="w-4 h-4"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -362,236 +513,73 @@
                 </div>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <!-- Stars -->
-                <div class="glass-card text-center">
-                    <div class="text-3xl font-bold text-gradient">
-                        {loading
-                            ? "..."
-                            : formatNumber(
-                                  githubData?.stargazers_count || project.stars,
-                              )}
-                    </div>
-                    <div
-                        class="text-sm text-base-content/60 flex items-center justify-center gap-1"
-                    >
-                        <svg
-                            class="w-4 h-4 text-primary"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
+            <!-- Main content with sidebars -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Sidebar -->
+                <div class="lg:col-span-3 space-y-4 order-2 lg:order-1">
+                    <!-- Quick Links -->
+                    <div class="glass-card">
+                        <h3
+                            class="font-semibold mb-3 text-sm uppercase tracking-wide text-primary"
                         >
-                            <path
-                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                            />
-                        </svg>
-                        Stars
+                            Quick Links
+                        </h3>
+                        <div class="space-y-1">
+                            <a
+                                href="{projectInfo()?.url}/issues"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors text-sm"
+                            >
+                                🐛 Issues {#if githubData?.open_issues_count}<span
+                                        class="text-base-content/50"
+                                        >({githubData.open_issues_count})</span
+                                    >{/if}
+                            </a>
+                            <a
+                                href="{projectInfo()?.url}/pulls"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors text-sm"
+                            >
+                                🔀 Pull Requests
+                            </a>
+                            <a
+                                href="{projectInfo()?.url}/discussions"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors text-sm"
+                            >
+                                💬 Discussions
+                            </a>
+                            <a
+                                href="{projectInfo()?.url}/releases"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors text-sm"
+                            >
+                                📦 Releases
+                            </a>
+                            <a
+                                href="{projectInfo()?.url}/wiki"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors text-sm"
+                            >
+                                📖 Wiki
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Forks -->
-                <div class="glass-card text-center">
-                    <div class="text-3xl font-bold text-white">
-                        {loading
-                            ? "..."
-                            : formatNumber(
-                                  githubData?.forks_count || project.forks || 0,
-                              )}
-                    </div>
-                    <div
-                        class="text-sm text-base-content/60 flex items-center justify-center gap-1"
-                    >
-                        <svg
-                            class="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        Forks
-                    </div>
-                </div>
-
-                <!-- Watchers -->
-                <div class="glass-card text-center">
-                    <div class="text-3xl font-bold text-white">
-                        {loading
-                            ? "..."
-                            : formatNumber(githubData?.subscribers_count || 0)}
-                    </div>
-                    <div
-                        class="text-sm text-base-content/60 flex items-center justify-center gap-1"
-                    >
-                        <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                        </svg>
-                        Watchers
-                    </div>
-                </div>
-
-                <!-- Age -->
-                <div class="glass-card text-center">
-                    <div class="text-3xl font-bold text-white">
-                        {loading
-                            ? "..."
-                            : githubData?.created_at
-                              ? calculateAge(githubData.created_at)
-                              : project.age || 0}
-                    </div>
-                    <div
-                        class="text-sm text-base-content/60 flex items-center justify-center gap-1"
-                    >
-                        <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                        </svg>
-                        Years
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="glass-card mb-8">
-                <h3 class="font-semibold text-lg mb-4 flex items-center gap-2">
-                    <svg
-                        class="w-5 h-5 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                    </svg>
-                    Quick Links
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                    <a
-                        href="{project.url}/stargazers"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        ⭐ Stargazers
-                    </a>
-                    <a
-                        href="{project.url}/issues"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        🐛 Issues
-                    </a>
-                    <a
-                        href="{project.url}/pulls"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        🔀 Pull Requests
-                    </a>
-                    <a
-                        href="{project.url}/discussions"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        💬 Discussions
-                    </a>
-                    <a
-                        href="{project.url}/wiki"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        📖 Wiki
-                    </a>
-                    <a
-                        href="{project.url}/releases"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-sm btn-ghost gap-2"
-                    >
-                        📦 Releases
-                    </a>
-                </div>
-            </div>
-
-            <!-- Details Grid -->
-            <div class="grid md:grid-cols-2 gap-8 mb-8">
-                <!-- Left Column - Info -->
-                <div class="space-y-6">
                     <!-- Repository Info -->
                     <div class="glass-card">
                         <h3
-                            class="font-semibold text-lg mb-4 flex items-center gap-2"
+                            class="font-semibold mb-3 text-sm uppercase tracking-wide text-primary"
                         >
-                            <svg
-                                class="w-5 h-5 text-primary"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
                             Repository Info
                         </h3>
-
-                        {#if loading}
-                            <div class="animate-pulse space-y-3">
-                                <div
-                                    class="h-4 bg-base-300 rounded w-3/4"
-                                ></div>
-                                <div
-                                    class="h-4 bg-base-300 rounded w-1/2"
-                                ></div>
-                                <div
-                                    class="h-4 bg-base-300 rounded w-2/3"
-                                ></div>
-                            </div>
-                        {:else if error}
-                            <p class="text-error">
-                                Failed to load data: {error}
-                            </p>
-                        {:else if githubData}
-                            <dl class="space-y-3 text-sm">
+                        {#if githubData}
+                            <dl class="space-y-2 text-sm">
                                 <div class="flex justify-between">
                                     <dt class="text-base-content/60">
                                         Created
@@ -602,32 +590,12 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-base-content/60">
-                                        Last Push
-                                    </dt>
-                                    <dd class="text-white">
-                                        {formatRelativeTime(
-                                            githubData.pushed_at,
-                                        )}
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-base-content/60">
                                         Default Branch
                                     </dt>
                                     <dd
-                                        class="text-white font-mono text-xs bg-base-300 px-2 py-1 rounded"
+                                        class="text-white font-mono text-xs bg-base-300 px-2 py-0.5 rounded"
                                     >
                                         {githubData.default_branch}
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-base-content/60">
-                                        Open Issues
-                                    </dt>
-                                    <dd class="text-white">
-                                        {formatNumber(
-                                            githubData.open_issues_count,
-                                        )}
                                     </dd>
                                 </div>
                                 {#if githubData.license}
@@ -657,83 +625,18 @@
                         {/if}
                     </div>
 
-                    <!-- Languages -->
-                    {#if languagePercentages().length > 0}
-                        <div class="glass-card">
-                            <h3
-                                class="font-semibold text-lg mb-4 flex items-center gap-2"
-                            >
-                                <svg
-                                    class="w-5 h-5 text-primary"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                    />
-                                </svg>
-                                Languages
-                            </h3>
-                            <!-- Language bar -->
-                            <div
-                                class="flex h-2 rounded-full overflow-hidden mb-4 bg-base-300"
-                            >
-                                {#each languagePercentages() as lang}
-                                    <div
-                                        class="h-full"
-                                        style="width: {lang.percentage}%; background-color: {lang.color}"
-                                        title="{lang.language}: {lang.percentage}%"
-                                    ></div>
-                                {/each}
-                            </div>
-                            <div class="flex flex-wrap gap-3 text-sm">
-                                {#each languagePercentages() as lang}
-                                    <div class="flex items-center gap-1.5">
-                                        <span
-                                            class="w-3 h-3 rounded-full"
-                                            style="background-color: {lang.color}"
-                                        ></span>
-                                        <span class="text-white"
-                                            >{lang.language}</span
-                                        >
-                                        <span class="text-base-content/60"
-                                            >{lang.percentage}%</span
-                                        >
-                                    </div>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
-
                     <!-- Topics -->
                     {#if githubData?.topics?.length}
                         <div class="glass-card">
                             <h3
-                                class="font-semibold text-lg mb-4 flex items-center gap-2"
+                                class="font-semibold mb-3 text-sm uppercase tracking-wide text-primary"
                             >
-                                <svg
-                                    class="w-5 h-5 text-primary"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                    />
-                                </svg>
                                 Topics
                             </h3>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="flex flex-wrap gap-1.5">
                                 {#each githubData.topics as topic}
                                     <span
-                                        class="px-3 py-1 text-xs rounded-full bg-primary/20 text-primary border border-primary/30"
+                                        class="px-2 py-0.5 text-xs rounded-full bg-primary/20 text-primary border border-primary/30"
                                     >
                                         {topic}
                                     </span>
@@ -743,61 +646,10 @@
                     {/if}
                 </div>
 
-                <!-- Right Column -->
-                <div class="space-y-6">
-                    <!-- Top Contributors -->
-                    {#if contributors.length > 0}
-                        <div class="glass-card">
-                            <h3
-                                class="font-semibold text-lg mb-4 flex items-center gap-2"
-                            >
-                                <svg
-                                    class="w-5 h-5 text-primary"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m12 5.197v1H9v-1a6 6 0 0112 0z"
-                                    />
-                                </svg>
-                                Top Contributors
-                            </h3>
-                            <div class="flex flex-wrap gap-2">
-                                {#each contributors as contributor}
-                                    <a
-                                        href={contributor.html_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-base-300/50 hover:bg-base-300 transition-colors"
-                                        title="{contributor.login}: {contributor.contributions} commits"
-                                    >
-                                        <img
-                                            src={contributor.avatar_url}
-                                            alt={contributor.login}
-                                            class="w-6 h-6 rounded-full"
-                                        />
-                                        <span class="text-sm text-white"
-                                            >{contributor.login}</span
-                                        >
-                                        <span
-                                            class="text-xs text-base-content/60"
-                                            >{contributor.contributions}</span
-                                        >
-                                    </a>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
-
-                    <!-- README Preview -->
+                <!-- Main Content - README -->
+                <div class="lg:col-span-6 order-1 lg:order-2">
                     <div class="glass-card">
-                        <h3
-                            class="font-semibold text-lg mb-4 flex items-center gap-2"
-                        >
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
                             <svg
                                 class="w-5 h-5 text-primary"
                                 fill="none"
@@ -811,29 +663,16 @@
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            README Preview
+                            README
                         </h3>
-
-                        {#if loading}
-                            <div class="animate-pulse space-y-3">
-                                <div
-                                    class="h-4 bg-base-300 rounded w-full"
-                                ></div>
-                                <div
-                                    class="h-4 bg-base-300 rounded w-5/6"
-                                ></div>
-                                <div
-                                    class="h-4 bg-base-300 rounded w-4/6"
-                                ></div>
-                            </div>
-                        {:else if readme}
+                        {#if readme}
                             <pre
-                                class="text-sm text-base-content/80 whitespace-pre-wrap font-mono bg-base-300/50 p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">{readme}</pre>
+                                class="text-sm text-base-content/80 whitespace-pre-wrap font-mono bg-base-300/50 p-4 rounded-lg overflow-x-auto max-h-[70vh] overflow-y-auto">{readme}</pre>
                         {:else}
                             <p class="text-base-content/60 text-sm">
                                 README not available or failed to load.
                                 <a
-                                    href="{project.url}#readme"
+                                    href="{projectInfo()?.url}#readme"
                                     target="_blank"
                                     class="text-primary hover:underline"
                                     >View on GitHub</a
@@ -842,18 +681,95 @@
                         {/if}
                     </div>
                 </div>
+
+                <!-- Right Sidebar -->
+                <div class="lg:col-span-3 space-y-4 order-3">
+                    <!-- Languages -->
+                    {#if languagePercentages().length > 0}
+                        <div class="glass-card">
+                            <h3
+                                class="font-semibold mb-3 text-sm uppercase tracking-wide text-primary"
+                            >
+                                Languages
+                            </h3>
+                            <div
+                                class="flex h-2 rounded-full overflow-hidden mb-3 bg-base-300"
+                            >
+                                {#each languagePercentages() as lang}
+                                    <div
+                                        class="h-full"
+                                        style="width: {lang.percentage}%; background-color: {lang.color}"
+                                        title="{lang.language}: {lang.percentage}%"
+                                    ></div>
+                                {/each}
+                            </div>
+                            <div class="space-y-1 text-sm">
+                                {#each languagePercentages() as lang}
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="w-2.5 h-2.5 rounded-full"
+                                            style="background-color: {lang.color}"
+                                        ></span>
+                                        <span class="text-white"
+                                            >{lang.language}</span
+                                        >
+                                        <span
+                                            class="text-base-content/60 ml-auto"
+                                            >{lang.percentage}%</span
+                                        >
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    <!-- Top Contributors -->
+                    {#if contributors.length > 0}
+                        <div class="glass-card">
+                            <h3
+                                class="font-semibold mb-3 text-sm uppercase tracking-wide text-primary"
+                            >
+                                Top Contributors
+                            </h3>
+                            <div class="space-y-2">
+                                {#each contributors.slice(0, 8) as contributor}
+                                    <a
+                                        href={contributor.html_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex items-center gap-2 py-1 hover:bg-base-300 rounded px-1 transition-colors"
+                                    >
+                                        <img
+                                            src={contributor.avatar_url}
+                                            alt={contributor.login}
+                                            class="w-6 h-6 rounded-full"
+                                        />
+                                        <span
+                                            class="text-sm text-white truncate"
+                                            >{contributor.login}</span
+                                        >
+                                        <span
+                                            class="text-xs text-base-content/50 ml-auto"
+                                            >{contributor.contributions}</span
+                                        >
+                                    </a>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+                </div>
             </div>
 
             <!-- Related Projects -->
             {#if relatedProjects().length > 0}
-                <div class="mb-12">
-                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <div class="mt-8">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
                         <span class="text-gradient">Related</span> Projects
                         <span class="text-base-content/60 text-sm font-normal"
                             >from {category()?.name}</span
                         >
                     </h2>
-                    <div class="grid md:grid-cols-3 gap-6">
+                    <div class="grid md:grid-cols-3 gap-4">
                         {#each relatedProjects() as relatedProject}
                             <ProjectCard project={relatedProject} />
                         {/each}
@@ -862,10 +778,10 @@
             {/if}
 
             <!-- Back Link -->
-            <div class="text-center">
-                <a href="/" class="btn btn-outline btn-primary gap-2">
+            <div class="mt-8 text-center">
+                <a href="/" class="btn btn-outline btn-primary btn-sm gap-2">
                     <svg
-                        class="w-5 h-5"
+                        class="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -882,15 +798,27 @@
             </div>
         </div>
     </section>
+{:else if error}
+    <section class="py-20">
+        <div class="max-w-2xl mx-auto text-center px-4">
+            <span class="text-6xl mb-6 block">⚠️</span>
+            <h1 class="text-3xl font-bold mb-4">Repository Not Found</h1>
+            <p class="text-base-content/70 mb-8">
+                Could not find this repository on GitHub. It may be private or
+                deleted.
+            </p>
+            <a href="/" class="btn btn-primary">Browse All Projects</a>
+        </div>
+    </section>
 {:else}
     <section class="py-20">
         <div class="max-w-2xl mx-auto text-center px-4">
             <span class="text-6xl mb-6 block">🔍</span>
             <h1 class="text-3xl font-bold mb-4">Project Not Found</h1>
             <p class="text-base-content/70 mb-8">
-                The project you're looking for isn't in our curated collection.
+                The project you're looking for isn't available.
             </p>
-            <a href="/" class="btn btn-primary"> Browse All Projects </a>
+            <a href="/" class="btn btn-primary">Browse All Projects</a>
         </div>
     </section>
 {/if}

@@ -221,7 +221,7 @@
             <!-- Projects Grid -->
             <div class="projects-grid">
                 {#each trendingProjects as project}
-                    <ProjectCard {project} externalLink={true} />
+                    <ProjectCard {project} />
                 {/each}
             </div>
         {/if}

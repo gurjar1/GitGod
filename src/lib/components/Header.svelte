@@ -1,14 +1,28 @@
 <script lang="ts">
     import { page } from "$app/state";
 
-    const categories = [
+    // All 15 categories organized by tier
+    const legendaryCategories = [
         { name: "The Immortals", slug: "the-immortals", icon: "⚔️" },
         { name: "The Omnipotent", slug: "the-omnipotent", icon: "🌐" },
         { name: "The Dangerous", slug: "the-dangerous", icon: "☠️" },
         { name: "The Cults", slug: "the-cults", icon: "🔥" },
         { name: "The Awesome", slug: "the-awesome", icon: "🌟" },
+    ];
+
+    const domainCategories = [
         { name: "The Oracles", slug: "the-oracles", icon: "🧠" },
         { name: "The Architects", slug: "the-architects", icon: "🏗️" },
+        { name: "The Guardians", slug: "the-guardians", icon: "🛡️" },
+        { name: "The Weavers", slug: "the-weavers", icon: "🕸️" },
+    ];
+
+    const risingCategories = [
+        { name: "The Forges", slug: "the-forges", icon: "🔨" },
+        { name: "The Teachers", slug: "the-teachers", icon: "📚" },
+        { name: "The Rising Gods", slug: "the-rising-gods", icon: "🚀" },
+        { name: "The Automators", slug: "the-automators", icon: "⚙️" },
+        { name: "The Beginner's Path", slug: "the-beginners-path", icon: "🌱" },
     ];
 
     let mobileMenuOpen = $state(false);
@@ -60,29 +74,69 @@
                             />
                         </svg>
                     </div>
-                    <ul
+                    <div
                         tabindex="0"
-                        class="dropdown-content z-[100] menu p-2 shadow-lg bg-base-200 rounded-box w-56 border border-base-300"
+                        class="dropdown-content z-[100] p-4 shadow-lg bg-base-200 rounded-box w-[500px] border border-base-300"
                     >
-                        {#each categories as cat}
-                            <li>
-                                <a
-                                    href="/category/{cat.slug}"
-                                    class="flex items-center gap-2"
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Column 1: Legendary -->
+                            <div>
+                                <div
+                                    class="text-xs font-semibold text-primary mb-2 uppercase tracking-wide"
                                 >
-                                    <span>{cat.icon}</span>
-                                    <span>{cat.name}</span>
-                                </a>
-                            </li>
-                        {/each}
-                        <li class="border-t border-base-300 mt-2 pt-2">
+                                    Legendary
+                                </div>
+                                {#each legendaryCategories as cat}
+                                    <a
+                                        href="/category/{cat.slug}"
+                                        class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors"
+                                    >
+                                        <span>{cat.icon}</span>
+                                        <span class="text-sm">{cat.name}</span>
+                                    </a>
+                                {/each}
+                                <div
+                                    class="text-xs font-semibold text-primary mb-2 mt-3 uppercase tracking-wide"
+                                >
+                                    Domain
+                                </div>
+                                {#each domainCategories as cat}
+                                    <a
+                                        href="/category/{cat.slug}"
+                                        class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors"
+                                    >
+                                        <span>{cat.icon}</span>
+                                        <span class="text-sm">{cat.name}</span>
+                                    </a>
+                                {/each}
+                            </div>
+                            <!-- Column 2: Rising -->
+                            <div>
+                                <div
+                                    class="text-xs font-semibold text-primary mb-2 uppercase tracking-wide"
+                                >
+                                    Rising & Tools
+                                </div>
+                                {#each risingCategories as cat}
+                                    <a
+                                        href="/category/{cat.slug}"
+                                        class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-base-300 transition-colors"
+                                    >
+                                        <span>{cat.icon}</span>
+                                        <span class="text-sm">{cat.name}</span>
+                                    </a>
+                                {/each}
+                            </div>
+                        </div>
+                        <div class="border-t border-base-300 mt-3 pt-3">
                             <a
                                 href="/categories"
-                                class="text-primary font-medium"
-                                >View All Categories →</a
+                                class="text-primary font-medium text-sm hover:underline"
                             >
-                        </li>
-                    </ul>
+                                View All Categories →
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <a
