@@ -6,7 +6,7 @@
     let trendingProjects = $state<Project[]>([]);
     let loading = $state(true);
     let error = $state<string | null>(null);
-    let timeRange = $state<"daily" | "weekly" | "monthly">("daily");
+    let timeRange = $state<"daily" | "weekly" | "monthly">("weekly");
 
     // Convert GitHub API response to our Project format
     function convertToProject(repo: any): Project {
@@ -21,7 +21,50 @@
         };
     }
 
-    // Fetch trending repos (using GitHub search API as proxy)
+    // Filter out low-quality repos
+    function isQualityRepo(repo: any): boolean {
+        // Must have description
+        if (!repo.description) return false;
+
+        // Description should be in English (basic check for ASCII)
+        const description = repo.description || "";
+        const asciiRatio =
+            description.replace(/[^\x00-\x7F]/g, "").length /
+            description.length;
+        if (asciiRatio < 0.7) return false;
+
+        // Should have a known programming language
+        if (!repo.language) return false;
+
+        // Must have at least 50 stars
+        if (repo.stargazers_count < 50) return false;
+
+        // Skip common homework/assignment patterns
+        const name = repo.name.toLowerCase();
+        const desc = description.toLowerCase();
+        const skipPatterns = [
+            "homework",
+            "assignment",
+            "bài tập",
+            "thực tập",
+            "课程",
+            "作业",
+            "練習",
+            "übung",
+            "ejercicio",
+            "lab1",
+            "lab2",
+            "lab3",
+            "week1",
+            "week2",
+        ];
+        if (skipPatterns.some((p) => name.includes(p) || desc.includes(p)))
+            return false;
+
+        return true;
+    }
+
+    // Fetch trending repos (using GitHub search API)
     async function fetchTrending() {
         loading = true;
         error = null;
@@ -45,9 +88,12 @@
 
             const dateStr = since.toISOString().split("T")[0];
 
-            // Use GitHub search API to find recently popular repos
+            // Use GitHub search API - filter for repos with:
+            // - Created after the date
+            // - At least 50 stars (quality threshold)
+            // - Sort by stars
             const response = await fetch(
-                `https://api.github.com/search/repositories?q=created:>${dateStr}&sort=stars&order=desc&per_page=20`,
+                `https://api.github.com/search/repositories?q=created:>${dateStr}+stars:>50&sort=stars&order=desc&per_page=50`,
                 {
                     headers: {
                         Accept: "application/vnd.github.v3+json",
@@ -60,7 +106,11 @@
             }
 
             const data = await response.json();
-            trendingProjects = data.items.map(convertToProject);
+
+            // Filter for quality repos and take top 20
+            const qualityRepos = data.items.filter(isQualityRepo).slice(0, 20);
+
+            trendingProjects = qualityRepos.map(convertToProject);
         } catch (e) {
             error = e instanceof Error ? e.message : "An error occurred";
         } finally {
@@ -171,7 +221,7 @@
             <!-- Projects Grid -->
             <div class="projects-grid">
                 {#each trendingProjects as project}
-                    <ProjectCard {project} />
+                    <ProjectCard {project} externalLink={true} />
                 {/each}
             </div>
         {/if}
@@ -182,8 +232,9 @@
         >
             <p class="text-sm text-base-content/60">
                 <strong class="text-white">Note:</strong> Trending data is fetched
-                live from GitHub's API. Results show repositories created within
-                the selected time period, sorted by star count.
+                live from GitHub's API. Results show high-quality repositories created
+                within the selected time period, sorted by star count. Click any
+                card to open on GitHub.
             </p>
         </div>
     </div>

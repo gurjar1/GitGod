@@ -1,7 +1,10 @@
 <script lang="ts">
     import type { Project } from "$lib/data/projects";
 
-    let { project }: { project: Project } = $props();
+    let {
+        project,
+        externalLink = false,
+    }: { project: Project; externalLink?: boolean } = $props();
 
     // Format star count
     function formatStars(count: number): string {
@@ -35,13 +38,22 @@
         Dockerfile: "#384d54",
         HTML: "#e34c26",
         CSS: "#563d7c",
+        Markdown: "#083fa1",
+        Svelte: "#ff3e00",
+        Vue: "#41b883",
     };
+
+    // Get the link - external or internal
+    const href = $derived(
+        externalLink
+            ? project.url
+            : `/project/${project.owner}/${project.name}`,
+    );
+    const target = $derived(externalLink ? "_blank" : undefined);
+    const rel = $derived(externalLink ? "noopener noreferrer" : undefined);
 </script>
 
-<a
-    href="/project/{project.owner}/{project.name}"
-    class="glass-card project-card block"
->
+<a {href} {target} {rel} class="glass-card project-card block">
     <div class="flex items-start justify-between gap-4 mb-3">
         <div class="flex-1 min-w-0">
             <h3
@@ -51,7 +63,7 @@
                 >{project.name}
             </h3>
         </div>
-        {#if project.language}
+        {#if project.language && project.language !== "Unknown"}
             <span
                 class="language-badge shrink-0"
                 style="--lang-color: {languageColors[project.language] ||
@@ -117,6 +129,24 @@
                     />
                 </svg>
                 <span>{project.age}+ years</span>
+            </span>
+        {/if}
+
+        {#if externalLink}
+            <span class="stat-item ml-auto text-primary">
+                <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                </svg>
             </span>
         {/if}
     </div>

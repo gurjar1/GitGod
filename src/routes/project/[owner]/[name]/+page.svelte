@@ -1,6 +1,11 @@
 <script lang="ts">
     import { page } from "$app/state";
-    import { getProjectByFullName, getAllCategories } from "$lib/data/projects";
+    import {
+        getProjectByFullName,
+        getAllCategories,
+        type Project,
+    } from "$lib/data/projects";
+    import ProjectCard from "$lib/components/ProjectCard.svelte";
     import { onMount } from "svelte";
 
     // Get static project data
@@ -13,6 +18,8 @@
     let loading = $state(true);
     let error = $state<string | null>(null);
     let readme = $state<string | null>(null);
+    let contributors = $state<any[]>([]);
+    let languages = $state<Record<string, number>>({});
 
     // Find which category this project belongs to
     const category = $derived(() => {
@@ -31,6 +38,21 @@
         return null;
     });
 
+    // Get related projects from the same category
+    const relatedProjects = $derived(() => {
+        const cat = category();
+        if (!cat) return [];
+        return cat.projects
+            .filter(
+                (p) =>
+                    !(
+                        p.owner === page.params.owner &&
+                        p.name === page.params.name
+                    ),
+            )
+            .slice(0, 3);
+    });
+
     // Format numbers
     function formatNumber(num: number): string {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
@@ -46,6 +68,21 @@
             month: "short",
             day: "numeric",
         });
+    }
+
+    // Format relative time
+    function formatRelativeTime(dateStr: string): string {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return "today";
+        if (diffDays === 1) return "yesterday";
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+        if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+        return `${Math.floor(diffDays / 365)} years ago`;
     }
 
     // Calculate age from created date
@@ -99,6 +136,40 @@
             } catch (e) {
                 // README fetch failed, that's okay
             }
+
+            // Fetch top contributors
+            try {
+                const contribResponse = await fetch(
+                    `https://api.github.com/repos/${page.params.owner}/${page.params.name}/contributors?per_page=8`,
+                    {
+                        headers: {
+                            Accept: "application/vnd.github.v3+json",
+                        },
+                    },
+                );
+                if (contribResponse.ok) {
+                    contributors = await contribResponse.json();
+                }
+            } catch (e) {
+                // Contributors fetch failed
+            }
+
+            // Fetch languages
+            try {
+                const langResponse = await fetch(
+                    `https://api.github.com/repos/${page.params.owner}/${page.params.name}/languages`,
+                    {
+                        headers: {
+                            Accept: "application/vnd.github.v3+json",
+                        },
+                    },
+                );
+                if (langResponse.ok) {
+                    languages = await langResponse.json();
+                }
+            } catch (e) {
+                // Languages fetch failed
+            }
         } catch (e) {
             error = e instanceof Error ? e.message : "An error occurred";
         } finally {
@@ -132,7 +203,23 @@
         CSS: "#563d7c",
         Zig: "#ec915c",
         Nix: "#7e7eff",
+        Markdown: "#083fa1",
+        Svelte: "#ff3e00",
+        Vue: "#41b883",
     };
+
+    // Calculate language percentages
+    const languagePercentages = $derived(() => {
+        const total = Object.values(languages).reduce((a, b) => a + b, 0);
+        if (total === 0) return [];
+        return Object.entries(languages)
+            .map(([lang, bytes]) => ({
+                language: lang,
+                percentage: ((bytes / total) * 100).toFixed(1),
+                color: languageColors[lang] || "#8b949e",
+            }))
+            .slice(0, 6);
+    });
 </script>
 
 <svelte:head>
@@ -215,6 +302,10 @@
                                     ></span>
                                     {project.language}
                                 </span>
+                            {/if}
+                            {#if githubData?.archived}
+                                <span class="badge badge-warning">Archived</span
+                                >
                             {/if}
                         </div>
 
@@ -388,8 +479,78 @@
                 </div>
             </div>
 
+            <!-- Quick Links -->
+            <div class="glass-card mb-8">
+                <h3 class="font-semibold text-lg mb-4 flex items-center gap-2">
+                    <svg
+                        class="w-5 h-5 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                        />
+                    </svg>
+                    Quick Links
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <a
+                        href="{project.url}/stargazers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        ⭐ Stargazers
+                    </a>
+                    <a
+                        href="{project.url}/issues"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        🐛 Issues
+                    </a>
+                    <a
+                        href="{project.url}/pulls"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        🔀 Pull Requests
+                    </a>
+                    <a
+                        href="{project.url}/discussions"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        💬 Discussions
+                    </a>
+                    <a
+                        href="{project.url}/wiki"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        📖 Wiki
+                    </a>
+                    <a
+                        href="{project.url}/releases"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-ghost gap-2"
+                    >
+                        📦 Releases
+                    </a>
+                </div>
+            </div>
+
             <!-- Details Grid -->
-            <div class="grid md:grid-cols-2 gap-8">
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
                 <!-- Left Column - Info -->
                 <div class="space-y-6">
                     <!-- Repository Info -->
@@ -441,18 +602,12 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-base-content/60">
-                                        Last Updated
-                                    </dt>
-                                    <dd class="text-white">
-                                        {formatDate(githubData.updated_at)}
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-base-content/60">
                                         Last Push
                                     </dt>
                                     <dd class="text-white">
-                                        {formatDate(githubData.pushed_at)}
+                                        {formatRelativeTime(
+                                            githubData.pushed_at,
+                                        )}
                                     </dd>
                                 </div>
                                 <div class="flex justify-between">
@@ -502,6 +657,58 @@
                         {/if}
                     </div>
 
+                    <!-- Languages -->
+                    {#if languagePercentages().length > 0}
+                        <div class="glass-card">
+                            <h3
+                                class="font-semibold text-lg mb-4 flex items-center gap-2"
+                            >
+                                <svg
+                                    class="w-5 h-5 text-primary"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                                    />
+                                </svg>
+                                Languages
+                            </h3>
+                            <!-- Language bar -->
+                            <div
+                                class="flex h-2 rounded-full overflow-hidden mb-4 bg-base-300"
+                            >
+                                {#each languagePercentages() as lang}
+                                    <div
+                                        class="h-full"
+                                        style="width: {lang.percentage}%; background-color: {lang.color}"
+                                        title="{lang.language}: {lang.percentage}%"
+                                    ></div>
+                                {/each}
+                            </div>
+                            <div class="flex flex-wrap gap-3 text-sm">
+                                {#each languagePercentages() as lang}
+                                    <div class="flex items-center gap-1.5">
+                                        <span
+                                            class="w-3 h-3 rounded-full"
+                                            style="background-color: {lang.color}"
+                                        ></span>
+                                        <span class="text-white"
+                                            >{lang.language}</span
+                                        >
+                                        <span class="text-base-content/60"
+                                            >{lang.percentage}%</span
+                                        >
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
                     <!-- Topics -->
                     {#if githubData?.topics?.length}
                         <div class="glass-card">
@@ -536,52 +743,126 @@
                     {/if}
                 </div>
 
-                <!-- Right Column - README Preview -->
-                <div class="glass-card">
-                    <h3
-                        class="font-semibold text-lg mb-4 flex items-center gap-2"
-                    >
-                        <svg
-                            class="w-5 h-5 text-primary"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                        </svg>
-                        README Preview
-                    </h3>
-
-                    {#if loading}
-                        <div class="animate-pulse space-y-3">
-                            <div class="h-4 bg-base-300 rounded w-full"></div>
-                            <div class="h-4 bg-base-300 rounded w-5/6"></div>
-                            <div class="h-4 bg-base-300 rounded w-4/6"></div>
-                        </div>
-                    {:else if readme}
-                        <pre
-                            class="text-sm text-base-content/80 whitespace-pre-wrap font-mono bg-base-300/50 p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">{readme}</pre>
-                    {:else}
-                        <p class="text-base-content/60 text-sm">
-                            README not available or failed to load.
-                            <a
-                                href="{project.url}#readme"
-                                target="_blank"
-                                class="text-primary hover:underline"
-                                >View on GitHub</a
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Top Contributors -->
+                    {#if contributors.length > 0}
+                        <div class="glass-card">
+                            <h3
+                                class="font-semibold text-lg mb-4 flex items-center gap-2"
                             >
-                        </p>
+                                <svg
+                                    class="w-5 h-5 text-primary"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m12 5.197v1H9v-1a6 6 0 0112 0z"
+                                    />
+                                </svg>
+                                Top Contributors
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {#each contributors as contributor}
+                                    <a
+                                        href={contributor.html_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-base-300/50 hover:bg-base-300 transition-colors"
+                                        title="{contributor.login}: {contributor.contributions} commits"
+                                    >
+                                        <img
+                                            src={contributor.avatar_url}
+                                            alt={contributor.login}
+                                            class="w-6 h-6 rounded-full"
+                                        />
+                                        <span class="text-sm text-white"
+                                            >{contributor.login}</span
+                                        >
+                                        <span
+                                            class="text-xs text-base-content/60"
+                                            >{contributor.contributions}</span
+                                        >
+                                    </a>
+                                {/each}
+                            </div>
+                        </div>
                     {/if}
+
+                    <!-- README Preview -->
+                    <div class="glass-card">
+                        <h3
+                            class="font-semibold text-lg mb-4 flex items-center gap-2"
+                        >
+                            <svg
+                                class="w-5 h-5 text-primary"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
+                            </svg>
+                            README Preview
+                        </h3>
+
+                        {#if loading}
+                            <div class="animate-pulse space-y-3">
+                                <div
+                                    class="h-4 bg-base-300 rounded w-full"
+                                ></div>
+                                <div
+                                    class="h-4 bg-base-300 rounded w-5/6"
+                                ></div>
+                                <div
+                                    class="h-4 bg-base-300 rounded w-4/6"
+                                ></div>
+                            </div>
+                        {:else if readme}
+                            <pre
+                                class="text-sm text-base-content/80 whitespace-pre-wrap font-mono bg-base-300/50 p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">{readme}</pre>
+                        {:else}
+                            <p class="text-base-content/60 text-sm">
+                                README not available or failed to load.
+                                <a
+                                    href="{project.url}#readme"
+                                    target="_blank"
+                                    class="text-primary hover:underline"
+                                    >View on GitHub</a
+                                >
+                            </p>
+                        {/if}
+                    </div>
                 </div>
             </div>
 
+            <!-- Related Projects -->
+            {#if relatedProjects().length > 0}
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <span class="text-gradient">Related</span> Projects
+                        <span class="text-base-content/60 text-sm font-normal"
+                            >from {category()?.name}</span
+                        >
+                    </h2>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        {#each relatedProjects() as relatedProject}
+                            <ProjectCard project={relatedProject} />
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
             <!-- Back Link -->
-            <div class="mt-12 text-center">
+            <div class="text-center">
                 <a href="/" class="btn btn-outline btn-primary gap-2">
                     <svg
                         class="w-5 h-5"
