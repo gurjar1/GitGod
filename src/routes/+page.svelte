@@ -10,7 +10,7 @@
     const legendaryCategories = getCategoriesByTier("legendary");
     const domainCategories = getCategoriesByTier("domain");
     const risingCategories = getCategoriesByTier("rising");
-    const featuredProjects = getFeaturedProjects(6);
+    const featuredProjects = getFeaturedProjects(12);
 </script>
 
 <svelte:head>
@@ -92,13 +92,13 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div class="text-center p-4 rounded-lg bg-base-200/50">
                 <div class="text-3xl md:text-4xl font-bold text-gradient">
-                    14
+                    15
                 </div>
                 <div class="text-sm text-base-content/60">Categories</div>
             </div>
             <div class="text-center p-4 rounded-lg bg-base-200/50">
                 <div class="text-3xl md:text-4xl font-bold text-gradient">
-                    84+
+                    96+
                 </div>
                 <div class="text-sm text-base-content/60">Projects</div>
             </div>

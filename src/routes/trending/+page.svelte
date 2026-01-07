@@ -93,7 +93,7 @@
             // - At least 50 stars (quality threshold)
             // - Sort by stars
             const response = await fetch(
-                `https://api.github.com/search/repositories?q=created:>${dateStr}+stars:>50&sort=stars&order=desc&per_page=50`,
+                `https://api.github.com/search/repositories?q=created:>${dateStr}+stars:>50&sort=stars&order=desc&per_page=100`,
                 {
                     headers: {
                         Accept: "application/vnd.github.v3+json",
@@ -107,8 +107,8 @@
 
             const data = await response.json();
 
-            // Filter for quality repos and take top 20
-            const qualityRepos = data.items.filter(isQualityRepo).slice(0, 20);
+            // Filter for quality repos and take top 40
+            const qualityRepos = data.items.filter(isQualityRepo).slice(0, 40);
 
             trendingProjects = qualityRepos.map(convertToProject);
         } catch (e) {
