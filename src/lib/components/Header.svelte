@@ -6,6 +6,7 @@
         { name: "The Omnipotent", slug: "the-omnipotent", icon: "🌐" },
         { name: "The Dangerous", slug: "the-dangerous", icon: "☠️" },
         { name: "The Cults", slug: "the-cults", icon: "🔥" },
+        { name: "The Awesome", slug: "the-awesome", icon: "🌟" },
         { name: "The Oracles", slug: "the-oracles", icon: "🧠" },
         { name: "The Architects", slug: "the-architects", icon: "🏗️" },
     ];

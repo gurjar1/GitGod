@@ -935,6 +935,136 @@ export const categories: Category[] = [
                 age: 7
             }
         ]
+    },
+    {
+        id: 'the-awesome',
+        name: 'The Awesome',
+        description: 'The legendary "awesome" lists - curated collections of the best resources across every domain. The original curation movement.',
+        icon: '🌟',
+        tier: 'legendary',
+        metric: 'Curation Quality + Stars',
+        projects: [
+            {
+                name: 'awesome',
+                owner: 'sindresorhus',
+                description: 'The original awesome list - curated lists about all kinds of interesting topics',
+                stars: 335000,
+                forks: 28000,
+                language: 'Markdown',
+                url: 'https://github.com/sindresorhus/awesome',
+                age: 10
+            },
+            {
+                name: 'awesome-python',
+                owner: 'vinta',
+                description: 'An opinionated list of awesome Python frameworks, libraries, software and resources',
+                stars: 230000,
+                forks: 25000,
+                language: 'Python',
+                url: 'https://github.com/vinta/awesome-python',
+                age: 10
+            },
+            {
+                name: 'awesome-selfhosted',
+                owner: 'awesome-selfhosted',
+                description: 'A list of Free Software network services and web apps you can host yourself',
+                stars: 210000,
+                forks: 10000,
+                language: 'Markdown',
+                url: 'https://github.com/awesome-selfhosted/awesome-selfhosted',
+                age: 9
+            },
+            {
+                name: 'the-book-of-secret-knowledge',
+                owner: 'trimstray',
+                description: 'A collection of inspiring lists, manuals, cheatsheets, blogs, hacks, and cli/web tools',
+                stars: 160000,
+                forks: 10000,
+                language: 'Markdown',
+                url: 'https://github.com/trimstray/the-book-of-secret-knowledge',
+                age: 6
+            },
+            {
+                name: 'Awesome-Hacking',
+                owner: 'Hack-with-Github',
+                description: 'A collection of various awesome lists for hackers, pentesters and security researchers',
+                stars: 87000,
+                forks: 9000,
+                language: 'Markdown',
+                url: 'https://github.com/Hack-with-Github/Awesome-Hacking',
+                age: 8
+            },
+            {
+                name: 'awesome-cpp',
+                owner: 'fffaraz',
+                description: 'A curated list of awesome C++ frameworks, libraries, resources, and shiny things',
+                stars: 60000,
+                forks: 8000,
+                language: 'C++',
+                url: 'https://github.com/fffaraz/awesome-cpp',
+                age: 10
+            },
+            {
+                name: 'awesome-interview-questions',
+                owner: 'DopplerHQ',
+                description: 'A curated awesome list of lists of interview questions for every language and framework',
+                stars: 73000,
+                forks: 9000,
+                language: 'Markdown',
+                url: 'https://github.com/DopplerHQ/awesome-interview-questions',
+                age: 9
+            },
+            {
+                name: 'awesome-go',
+                owner: 'avelino',
+                description: 'A curated list of awesome Go frameworks, libraries and software',
+                stars: 135000,
+                forks: 12000,
+                language: 'Go',
+                url: 'https://github.com/avelino/awesome-go',
+                age: 10
+            },
+            {
+                name: 'awesome-rust',
+                owner: 'rust-unofficial',
+                description: 'A curated list of Rust code and resources',
+                stars: 48000,
+                forks: 2700,
+                language: 'Rust',
+                url: 'https://github.com/rust-unofficial/awesome-rust',
+                age: 10
+            },
+            {
+                name: 'awesome-java',
+                owner: 'akullpp',
+                description: 'A curated list of awesome Java frameworks, libraries and software',
+                stars: 42000,
+                forks: 7500,
+                language: 'Java',
+                url: 'https://github.com/akullpp/awesome-java',
+                age: 10
+            },
+            {
+                name: 'awesome-react',
+                owner: 'enaqx',
+                description: 'A collection of awesome things regarding React ecosystem',
+                stars: 66000,
+                forks: 7500,
+                language: 'JavaScript',
+                url: 'https://github.com/enaqx/awesome-react',
+                age: 10
+            },
+            {
+                name: 'awesome-machine-learning',
+                owner: 'josephmisiti',
+                description: 'A curated list of awesome Machine Learning frameworks, libraries and software',
+                stars: 66000,
+                forks: 15000,
+                language: 'Python',
+                url: 'https://github.com/josephmisiti/awesome-machine-learning',
+                age: 10
+            }
+        ]
     }
 ];
 
