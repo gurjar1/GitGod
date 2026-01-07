@@ -1,0 +1,302 @@
+/* GitGod - Global Styles with Amber/Gold Dark Theme */
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui';
+
+/* GitGod Dark Theme - Amber/Gold Accent */
+@plugin 'daisyui/theme' {
+  name: 'gitgod-dark';
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  
+  /* Amber/Gold Primary - "God" Theme */
+  --color-primary: #f59e0b;
+  --color-primary-content: #0a0a0a;
+  
+  /* Secondary - Muted Gold */
+  --color-secondary: #92400e;
+  --color-secondary-content: #fef3c7;
+  
+  /* Accent - Bright Amber */
+  --color-accent: #fbbf24;
+  --color-accent-content: #0a0a0a;
+  
+  /* Neutral Tones */
+  --color-neutral: #27272a;
+  --color-neutral-content: #e4e4e7;
+  
+  /* Base Colors - Deep Dark */
+  --color-base-100: #0a0a0a;
+  --color-base-200: #18181b;
+  --color-base-300: #27272a;
+  --color-base-content: #e4e4e7;
+  
+  /* Info/Success/Warning/Error */
+  --color-info: #3b82f6;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  
+  /* Border Radius */
+  --radius-box: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 9999px;
+}
+
+/* Global Variables */
+:root {
+  --accent-rgb: 245, 158, 11;
+  --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+}
+
+/* Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #e4e4e7;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Main Container */
+main {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+h1 { font-size: clamp(2rem, calc(1.8rem + 1vw), 3rem); }
+h2 { font-size: clamp(1.5rem, calc(1.4rem + 0.75vw), 2rem); }
+h3 { font-size: clamp(1.25rem, calc(1.15rem + 0.5vw), 1.5rem); }
+h4 { font-size: 1.125rem; }
+
+/* Gold Gradient Text */
+.text-gradient {
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass Card Base */
+.glass-card {
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background-color: #18181b;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: 
+    box-shadow 0.2s ease-out,
+    transform 0.15s ease-out,
+    border-color 0.2s ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--accent-rgb), 0.1);
+}
+
+.glass-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  box-shadow: 
+    0 8px 24px rgba(var(--accent-rgb), 0.15),
+    0 0 30px rgba(var(--accent-rgb), 0.2);
+  transform: translateY(-4px) scale(1.02);
+  z-index: 10;
+}
+
+.glass-card:active {
+  transform: translateY(-2px) scale(1.01);
+  transition-duration: 0.05s;
+}
+
+/* Glass Card Gradient Sheen */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0.3;
+  background-image: linear-gradient(
+    135deg,
+    transparent 60%,
+    rgba(var(--accent-rgb), 0.15) 80%,
+    rgba(var(--accent-rgb), 0.08) 100%
+  );
+  transition: opacity 0.2s ease-out;
+}
+
+.glass-card:hover::before {
+  opacity: 0.5;
+}
+
+/* Project Card Specific */
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.project-card .stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: #a1a1aa;
+}
+
+.project-card .stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.project-card .language-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: rgba(var(--accent-rgb), 0.15);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fbbf24;
+}
+
+/* Category Header */
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.category-icon {
+  font-size: 2rem;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.2), rgba(var(--accent-rgb), 0.1));
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Navigation Styles */
+.nav-link {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  transition: all 0.2s ease-out;
+}
+
+.nav-link:hover {
+  color: #fbbf24;
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+.nav-link.active {
+  color: #fbbf24;
+  background: rgba(var(--accent-rgb), 0.15);
+}
+
+/* Hero Section */
+.hero-gradient {
+  background: radial-gradient(ellipse at top, rgba(var(--accent-rgb), 0.15) 0%, transparent 60%);
+}
+
+/* Grid Layouts */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(245, 158, 11, 0.5);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3); }
+  50% { box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.5); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  main {
+    padding: 0 1rem;
+  }
+  
+  .projects-grid,
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+}
