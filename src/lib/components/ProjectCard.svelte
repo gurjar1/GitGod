@@ -54,36 +54,18 @@
 </script>
 
 <a {href} {target} {rel} class="glass-card project-card block">
-    <div class="flex items-start justify-between gap-4 mb-3">
-        <div class="flex-1 min-w-0">
-            <h3
-                class="font-semibold text-white truncate group-hover:text-primary transition-colors"
-            >
-                <span class="text-base-content/60">{project.owner}/</span
-                >{project.name}
-            </h3>
-        </div>
-        {#if project.language && project.language !== "Unknown"}
-            <span
-                class="language-badge shrink-0"
-                style="--lang-color: {languageColors[project.language] ||
-                    '#8b949e'}"
-            >
-                <span
-                    class="w-2 h-2 rounded-full"
-                    style="background-color: {languageColors[
-                        project.language
-                    ] || '#8b949e'}"
-                ></span>
-                {project.language}
-            </span>
-        {/if}
-    </div>
+    <!-- Title row - just owner/name, no language badge -->
+    <h3
+        class="font-semibold text-white truncate mb-2 group-hover:text-primary transition-colors"
+    >
+        <span class="text-base-content/60">{project.owner}/</span>{project.name}
+    </h3>
 
-    <p class="text-sm text-base-content/70 line-clamp-2 mb-4">
+    <p class="text-sm text-base-content/70 line-clamp-2 mb-3">
         {project.description || "No description available"}
     </p>
 
+    <!-- Stats row with language badge at the end -->
     <div class="stats">
         <span class="stat-item">
             <svg
@@ -128,12 +110,28 @@
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                 </svg>
-                <span>{project.age}+ years</span>
+                <span>{project.age}+ yrs</span>
+            </span>
+        {/if}
+
+        <!-- Language badge moved to stats row -->
+        {#if project.language && project.language !== "Unknown"}
+            <span
+                class="stat-item ml-auto"
+                style="color: {languageColors[project.language] || '#8b949e'}"
+            >
+                <span
+                    class="w-2 h-2 rounded-full"
+                    style="background-color: {languageColors[
+                        project.language
+                    ] || '#8b949e'}"
+                ></span>
+                <span class="text-xs">{project.language}</span>
             </span>
         {/if}
 
         {#if externalLink}
-            <span class="stat-item ml-auto text-primary">
+            <span class="stat-item text-primary">
                 <svg
                     class="w-4 h-4"
                     fill="none"

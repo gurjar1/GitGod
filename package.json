@@ -24,7 +24,10 @@
 		"vite": "^7.2.6"
 	},
 	"dependencies": {
-		"daisyui": "^5.5.14"
+		"@types/dompurify": "^3.0.5",
+		"daisyui": "^5.5.14",
+		"dompurify": "^3.3.1",
+		"marked": "^17.0.1"
 	},
 	"engines": {
 		"node": ">=20.0.0"

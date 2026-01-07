@@ -7,6 +7,8 @@
     } from "$lib/data/projects";
     import ProjectCard from "$lib/components/ProjectCard.svelte";
     import { onMount } from "svelte";
+    import { marked } from "marked";
+    import DOMPurify from "dompurify";
 
     // Get static project data (may be null for trending repos)
     const curatedProject = $derived(
@@ -20,6 +22,17 @@
     let readme = $state<string | null>(null);
     let contributors = $state<any[]>([]);
     let languages = $state<Record<string, number>>({});
+
+    // Parse README as markdown
+    const parsedReadme = $derived(() => {
+        if (!readme) return null;
+        try {
+            const html = marked(readme, { gfm: true, breaks: true });
+            return DOMPurify.sanitize(html as string);
+        } catch {
+            return readme;
+        }
+    });
 
     // Combined project info (from curated or API)
     const projectInfo = $derived(() => {
@@ -666,8 +679,11 @@
                             README
                         </h3>
                         {#if readme}
-                            <pre
-                                class="text-sm text-base-content/80 whitespace-pre-wrap font-mono bg-base-300/50 p-4 rounded-lg overflow-x-auto max-h-[70vh] overflow-y-auto">{readme}</pre>
+                            <div
+                                class="prose prose-invert prose-sm max-w-none overflow-x-auto max-h-[70vh] overflow-y-auto"
+                            >
+                                {@html parsedReadme()}
+                            </div>
                         {:else}
                             <p class="text-base-content/60 text-sm">
                                 README not available or failed to load.

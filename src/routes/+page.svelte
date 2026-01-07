@@ -98,7 +98,7 @@
             </div>
             <div class="text-center p-4 rounded-lg bg-base-200/50">
                 <div class="text-3xl md:text-4xl font-bold text-gradient">
-                    96+
+                    156+
                 </div>
                 <div class="text-sm text-base-content/60">Projects</div>
             </div>

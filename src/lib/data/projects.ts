@@ -94,6 +94,66 @@ export const categories: Category[] = [
                 language: 'C',
                 url: 'https://github.com/postgres/postgres',
                 age: 28
+            },
+            {
+                name: 'node',
+                owner: 'nodejs',
+                description: 'Node.js JavaScript runtime - server-side JavaScript execution',
+                stars: 108000,
+                forks: 30000,
+                language: 'JavaScript',
+                url: 'https://github.com/nodejs/node',
+                age: 15
+            },
+            {
+                name: 'php-src',
+                owner: 'php',
+                description: 'The PHP Interpreter - powering billions of websites',
+                stars: 38000,
+                forks: 8200,
+                language: 'C',
+                url: 'https://github.com/php/php-src',
+                age: 30
+            },
+            {
+                name: 'ruby',
+                owner: 'ruby',
+                description: 'The Ruby Programming Language - optimized for programmer happiness',
+                stars: 22000,
+                forks: 5300,
+                language: 'Ruby',
+                url: 'https://github.com/ruby/ruby',
+                age: 31
+            },
+            {
+                name: 'nginx',
+                owner: 'nginx',
+                description: 'The NGINX web server - powers 34% of all websites',
+                stars: 25000,
+                forks: 7000,
+                language: 'C',
+                url: 'https://github.com/nginx/nginx',
+                age: 22
+            },
+            {
+                name: 'httpd',
+                owner: 'apache',
+                description: 'Apache HTTP Server - the most popular web server',
+                stars: 4000,
+                forks: 2100,
+                language: 'C',
+                url: 'https://github.com/apache/httpd',
+                age: 29
+            },
+            {
+                name: 'openssl',
+                owner: 'openssl',
+                description: 'OpenSSL - cryptography and SSL/TLS toolkit',
+                stars: 26000,
+                forks: 10500,
+                language: 'C',
+                url: 'https://github.com/openssl/openssl',
+                age: 26
             }
         ]
     },
@@ -164,6 +224,66 @@ export const categories: Category[] = [
                 language: 'TypeScript',
                 url: 'https://github.com/grafana/grafana',
                 age: 10
+            },
+            {
+                name: 'vault',
+                owner: 'hashicorp',
+                description: 'Vault - secrets management, encryption as a service, and privileged access management',
+                stars: 31000,
+                forks: 4200,
+                language: 'Go',
+                url: 'https://github.com/hashicorp/vault',
+                age: 10
+            },
+            {
+                name: 'consul',
+                owner: 'hashicorp',
+                description: 'Consul - service mesh, service discovery, and configuration',
+                stars: 28000,
+                forks: 4500,
+                language: 'Go',
+                url: 'https://github.com/hashicorp/consul',
+                age: 10
+            },
+            {
+                name: 'istio',
+                owner: 'istio',
+                description: 'Istio - connect, secure, control, and observe services',
+                stars: 36000,
+                forks: 7500,
+                language: 'Go',
+                url: 'https://github.com/istio/istio',
+                age: 7
+            },
+            {
+                name: 'etcd',
+                owner: 'etcd-io',
+                description: 'Distributed reliable key-value store for the most critical data of a distributed system',
+                stars: 48000,
+                forks: 10000,
+                language: 'Go',
+                url: 'https://github.com/etcd-io/etcd',
+                age: 11
+            },
+            {
+                name: 'argo-cd',
+                owner: 'argoproj',
+                description: 'Declarative GitOps continuous delivery tool for Kubernetes',
+                stars: 18000,
+                forks: 5500,
+                language: 'Go',
+                url: 'https://github.com/argoproj/argo-cd',
+                age: 6
+            },
+            {
+                name: 'jenkins',
+                owner: 'jenkinsci',
+                description: 'Jenkins automation server - the leading open source CI/CD solution',
+                stars: 23000,
+                forks: 8700,
+                language: 'Java',
+                url: 'https://github.com/jenkinsci/jenkins',
+                age: 18
             }
         ]
     },
@@ -234,6 +354,66 @@ export const categories: Category[] = [
                 language: 'Go',
                 url: 'https://github.com/projectdiscovery/nuclei',
                 age: 4
+            },
+            {
+                name: 'impacket',
+                owner: 'SecureAuthCorp',
+                description: 'Collection of Python classes for working with network protocols',
+                stars: 14000,
+                forks: 3800,
+                language: 'Python',
+                url: 'https://github.com/SecureAuthCorp/impacket',
+                age: 10
+            },
+            {
+                name: 'ghidra',
+                owner: 'NationalSecurityAgency',
+                description: 'Software reverse engineering (SRE) framework by NSA',
+                stars: 52000,
+                forks: 5800,
+                language: 'Java',
+                url: 'https://github.com/NationalSecurityAgency/ghidra',
+                age: 5
+            },
+            {
+                name: 'bloodhound',
+                owner: 'BloodHoundAD',
+                description: 'Six Degrees of Domain Admin - Active Directory attack path tool',
+                stars: 10000,
+                forks: 1900,
+                language: 'JavaScript',
+                url: 'https://github.com/BloodHoundAD/BloodHound',
+                age: 8
+            },
+            {
+                name: 'responder',
+                owner: 'lgandx',
+                description: 'LLMNR/NBT-NS/MDNS Poisoner and more - network pentesting',
+                stars: 5500,
+                forks: 1200,
+                language: 'Python',
+                url: 'https://github.com/lgandx/Responder',
+                age: 10
+            },
+            {
+                name: 'radare2',
+                owner: 'radareorg',
+                description: 'UNIX-like reverse engineering framework and CLI tools',
+                stars: 20000,
+                forks: 3000,
+                language: 'C',
+                url: 'https://github.com/radareorg/radare2',
+                age: 18
+            },
+            {
+                name: 'gobuster',
+                owner: 'OJ',
+                description: 'Directory/file & DNS busting tool written in Go',
+                stars: 10000,
+                forks: 1200,
+                language: 'Go',
+                url: 'https://github.com/OJ/gobuster',
+                age: 8
             }
         ]
     },
@@ -304,6 +484,66 @@ export const categories: Category[] = [
                 language: 'Zig',
                 url: 'https://github.com/ziglang/zig',
                 age: 8
+            },
+            {
+                name: 'ohmyzsh',
+                owner: 'ohmyzsh',
+                description: 'A delightful community-driven framework for managing your zsh configuration',
+                stars: 175000,
+                forks: 26000,
+                language: 'Shell',
+                url: 'https://github.com/ohmyzsh/ohmyzsh',
+                age: 14
+            },
+            {
+                name: 'godot',
+                owner: 'godotengine',
+                description: 'Godot Engine – Multi-platform 2D and 3D game engine',
+                stars: 92000,
+                forks: 21000,
+                language: 'C++',
+                url: 'https://github.com/godotengine/godot',
+                age: 10
+            },
+            {
+                name: 'blender',
+                owner: 'blender',
+                description: 'Official Blender 3D creation suite mirror',
+                stars: 14000,
+                forks: 2300,
+                language: 'C',
+                url: 'https://github.com/blender/blender',
+                age: 20
+            },
+            {
+                name: 'svelte',
+                owner: 'sveltejs',
+                description: 'web development for the rest of us',
+                stars: 80000,
+                forks: 4300,
+                language: 'JavaScript',
+                url: 'https://github.com/sveltejs/svelte',
+                age: 7
+            },
+            {
+                name: 'deno',
+                owner: 'denoland',
+                description: 'A modern runtime for JavaScript and TypeScript',
+                stars: 98000,
+                forks: 5400,
+                language: 'Rust',
+                url: 'https://github.com/denoland/deno',
+                age: 6
+            },
+            {
+                name: 'tailwindcss',
+                owner: 'tailwindlabs',
+                description: 'A utility-first CSS framework for rapid UI development',
+                stars: 84000,
+                forks: 4300,
+                language: 'JavaScript',
+                url: 'https://github.com/tailwindlabs/tailwindcss',
+                age: 7
             }
         ]
     },
